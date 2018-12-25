@@ -60,7 +60,7 @@ int valL;
 int valF;
 
 // モータの PWM を設定する関数
-void setMotorPulse(int left, int right) {
+void setMotorPulse(int left, int right) {//ここで左右比いじっておきたい
   if (left > 0) {
     analogWrite(MOTOR_L_IN1, min(left, 255)); analogWrite(MOTOR_L_IN2, 0);
   } else {
@@ -96,7 +96,7 @@ int ePrev = 0; // 前の偏差
 int eInt = 0; // 偏差の積分値
 int eDiff = 0; // 偏差の微分値
 
-int count_wait_box=0;
+int count_wait_box = 0;
 int count_PSD_under;
 
 void frontDistanceControl() {
@@ -110,7 +110,7 @@ void frontDistanceControl() {
   int v = e * F_KP_NUM / F_KP_DEN + eInt * F_KI_NUM / F_KI_DEN + eDiff * F_KD_NUM / F_KD_DEN; // 回転指令値 (左回り正)
   int w = 0;
   // モータの PWM パルスを設定
-  setMotorPulse(v - w, v + w);
+  setMotorPulse((v - w)*ratio_RLspeed, v + w);
 }
 
 unsigned long tPrev; // 前の時刻
@@ -157,12 +157,12 @@ void loop() {
   switch (state) {
     case 0 :  //待機モード
       buttonState = digitalRead(BUTTON_PIN);
-      if(buttonState == HIGH){
-        
-      }else{
-        state = 3;
+      if (buttonState == HIGH) {
+
+      } else {
+        state = 2;
       }
-    break;
+      break;
     case 1 :  //交差点時の処理
       setMotorPulse(0, 0);
       delay(1000);
@@ -174,43 +174,65 @@ void loop() {
           LSpeed = 0;
           delaytime =  700;
           break;
-        case 1 : RSpeed = -255;
+        /*case 1 : RSpeed = -255;
           LSpeed = 255;
           delaytime = 2000;
-          break;
+          break;*/
         case 2 : RSpeed = 255;
           LSpeed = 0;
           delaytime = 700;
           break;
-        case 3 : RSpeed = 0;
+        case 3 : RSpeed = 255;
           LSpeed = 255;
           delaytime = 700;
           break;
-        case 4 : RSpeed = 255;
+        /*case 4 : RSpeed = 255;
           LSpeed = -255;
           delaytime = 2000;
           break;
-        case 5 : RSpeed = 0;
+          case 5 : RSpeed = 0;
           LSpeed = 255;
           delaytime = 700;
-          break;
-        case 6 : RSpeed = 0;
+          break;*/
+        case 4 : RSpeed = 0;
           LSpeed = 0;
           delaytime = 10000;
           break;
+        /*case 5 : RSpeed = -255;
+          LSpeed = 255;
+          delaytime = 2000;
+          break;
+        case 6 : RSpeed = 255;
+          LSpeed = 255;
+          delaytime = 700;
+          break;
+        case 7 : RSpeed = 0;
+          LSpeed = 255;
+          delaytime =  700;
+          break;*/
       }
       setMotorPulse(LSpeed * ratio_RLspeed, RSpeed);
       delay(delaytime);
       valM = analogRead(LINE_M);
       while (valM > ikiti) {
+        if (State_Cross == 6) {
+          break;
+        }
         valM = analogRead(LINE_M);
         setMotorPulse(LSpeed * ratio_RLspeed, RSpeed);
       }
       count_Cross = 0;
       State_Cross += 1;
+      /*if (State_Cross == 8) {
+        State_Cross = 1;
+      }*/
       state = 2;
       break;
     case 2 :  //ライントレース
+      if (State_Cross > 5) {
+        state = 7;
+        break;
+      }
       if (count_Dassen > 3) { //脱線時の処理
         if (data[3] < 0) {
           while (valM > ikiti) {
@@ -233,11 +255,11 @@ void loop() {
         delay(20 - tProc);
       }
       tPrev = millis();
-      if(State_Cross == 1){
-        count_wait_box +=1;
-        if(count_wait_box>100){
+      if (State_Cross == 1) {
+        count_wait_box += 1;
+        if (count_wait_box > 100) {
           state = 3;
-          count_wait_box=0;
+          count_wait_box = 0;
         }
       }
       break;
@@ -247,33 +269,40 @@ void loop() {
       delay(500);
       state = 4;
     case 4 :
-      frontDistanceControl();
-      tProc = millis() - ePrev;
-      if (tProc < 20) {
-        // 処理時間と合わせて 20ms になるように delay を入れる
-        delay(20 - tProc);
+      valF = analogRead(PSD_F);
+      if(valF <= 100 ){
+        valF = analogRead(PSD_F);
+        setMotorPulse(-200 * ratio_RLspeed, -200);
       }
-      tPrev = millis();
-      if(e <= 20 && e >= -20) {
-        count_wait_box += 1;
-      }
-      if(e > 20 ||e < -20){
-        count_wait_box = 0;
-      }
-      if(count_wait_box > 2){
-        state = 5;
+      else if(valF > 100){
+        frontDistanceControl();
+        tProc = millis() - ePrev;
+        if (tProc < 20) {
+          // 処理時間と合わせて 20ms になるように delay を入れる
+          delay(20 - tProc);
+        }
+        tPrev = millis();
+        if (e <= 20 && e >= -20) {
+          count_wait_box += 1;
+        }
+        if (e > 20 || e < -20) {
+          count_wait_box = 0;
+        }
+        if (count_wait_box > 2) {
+          state = 5;
+        }
       }
       break;
     case 5 :
       setMotorPulse(0, 0);
-      val_Servo -=20;
+      val_Servo -= 20;
       servo.write(val_Servo);
       delay(100);
-      if(val_Servo < 544){
+      if (val_Servo < 544) {
         state = 6;
       }
       break;
-    case 6 :
+    case 6 ://ここstate1でいけるやろ
       RSpeed = -255;
       LSpeed = 255;
       delaytime = 2000;
@@ -284,10 +313,22 @@ void loop() {
         valM = analogRead(LINE_M);
         setMotorPulse(LSpeed * ratio_RLspeed, RSpeed);
       }
-      State_Cross += 1;
+      State_Cross += 1;//後で削ってCrossのcaseの方を変えて
       state = 2;
       break;
     case 7 :
+      setMotorPulse(0, 0);
+      val_Servo += 20;
+      servo.write(val_Servo);
+      delay(100);
+      if (val_Servo > 1600) {
+        state = 8;
+      }
+      break;
+    case 8 :
+      setMotorPulse(-255 * ratio_RLspeed, -255);
+      delay(1500);
+      state = 1;
       break;
   }
   Serial.print(state);
