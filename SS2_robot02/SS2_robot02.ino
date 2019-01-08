@@ -121,7 +121,7 @@ void loop() {
       if (buttonState == HIGH) {
 
       } else {
-        state = 1;
+        state = 2;
       }
       delay(20);
       break;
@@ -303,6 +303,8 @@ void loop() {
         case 5 : //ちょっとだけバック
           setMotorPulse(-200, -200);
           delay(700);
+          sub_State = 6;
+          break;
         case 6 : //回転
           setMotorPulse(255, -255);
           if (valRPSD < 150) {
