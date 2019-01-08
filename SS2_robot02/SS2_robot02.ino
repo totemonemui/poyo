@@ -7,9 +7,9 @@ ServoTimer2 servo;
 #define LINE_M A1
 #define LINE_L A2
 // 前側PSDセンサ(F)のアナログピン
-#define PSD_F A3
+#define PSD_F A4
 //側面PSDセンサ(R:右,L:左)のアナログピン
-#define PSD_R A4
+#define PSD_R A3
 #define PSD_L A5
 // モータ駆動用の PWM ピン
 #define MOTOR_L_IN1 5
@@ -142,7 +142,7 @@ void loop() {
         case 0 ://交差点を曲がる
           RSpeed = 255;
           LSpeed = 0;
-          delaytime =  2000;
+          delaytime =  700;
           Cross();
           sub_State = 1;
           break;
@@ -164,13 +164,13 @@ void loop() {
           val_Servo += 20;
           servo.write(val_Servo);
           delay(200);
-          if (val_Servo > 1600) {
+          if (val_Servo > 1240) {
             sub_State = 3;
           }
           break;
         case 3 : //前側の壁へのフィードバック制御
           getFPSD();
-          if (valFPSD <= 160 ) { //壁に当たって下がりきらなかった時の処理
+          if (valFPSD <= 100 ) { //壁に当たって下がりきらなかった時の処理
             getFPSD();
             setMotorPulse(-200, -200);
             delay(200);
@@ -199,13 +199,15 @@ void loop() {
           val_Servo -= 20;
           servo.write(val_Servo);
           delay(100);
-          if (val_Servo < 544) {
+          if (val_Servo < 540) {
             sub_State = 5;
           }
           break;
         case 5 : //ちょっとだけバック
           setMotorPulse(-200, -200);
           delay(700);
+          sub_State = 6;
+          break;
         case 6 : //回転
           RSpeed = -255;
           LSpeed = 255;
