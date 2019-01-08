@@ -261,8 +261,8 @@ void loop() {
           sub_State = 2;
           break;
         case 2 : //箱を下げる
-          servo.write(1600);
-          val_Servo = 1600;
+          servo.write(1240);
+          val_Servo = 1240;
           delay(500);
           sub_State = 3;
           break;
@@ -296,7 +296,7 @@ void loop() {
           val_Servo -= 20;
           servo.write(val_Servo);
           delay(100);
-          if (val_Servo < 544) {
+          if (val_Servo < 540) {
             sub_State = 5;
           }
           break;
