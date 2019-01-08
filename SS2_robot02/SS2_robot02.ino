@@ -49,7 +49,7 @@ ServoTimer2 servo;
 
 //定数たち
 int IKITI_PHOTO_REF = 400;//フォトリフレクタの白黒の閾値
-double RATIO_RLSPEED = 0.7;//左右のモーターの比
+double RATIO_RLSPEED = 0.8;//左右のモーターの比
 
 //変数たち
 int state;
@@ -82,7 +82,7 @@ unsigned long tPrev; // 前の時刻
 unsigned int tProc;
 
 //前側の壁に近づく用
-int refF = 650; // 目標値.ここを各自計測した値に設定する.
+int refF = 600; // 目標値.ここを各自計測した値に設定する.
 int e = 0; // 今の偏差
 int ePrev = 0; // 前の偏差
 int eInt = 0; // 偏差の積分値
@@ -155,22 +155,25 @@ void loop() {
           }
           tPrev = millis();
           count_wait_box += 1;
-          if (count_wait_box > 100) {
+          if (count_wait_box > 1000) {
             sub_State = 2;
             count_wait_box = 0;
           }
           break;
         case 2 : //箱を下げる
-          servo.write(1600);
-          val_Servo = 1600;
-          delay(500);
-          sub_State = 3;
+          val_Servo += 20;
+          servo.write(val_Servo);
+          delay(200);
+          if (val_Servo > 1600) {
+            sub_State = 3;
+          }
           break;
         case 3 : //前側の壁へのフィードバック制御
           getFPSD();
-          if (valFPSD <= 100 ) { //壁に当たって下がりきらなかった時の処理
+          if (valFPSD <= 160 ) { //壁に当たって下がりきらなかった時の処理
             getFPSD();
             setMotorPulse(-200, -200);
+            delay(200);
           }
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
@@ -311,14 +314,14 @@ void loop() {
           break;
         case 7 :
           kabeTrace();
-          
+
           break;
-        /*case :
-          break;
-        case :
-          break;
-        case :
-          break;*/
+          /*case :
+            break;
+            case :
+            break;
+            case :
+            break;*/
       }
       break;
     case 4 : //ボックスまでライントレース
@@ -328,7 +331,12 @@ void loop() {
     case 6 : //戻る?
       break;
   }
+  Serial.print(state);
+  Serial.print(" ");
+  Serial.print(sub_State);
+  Serial.print(" ");
   Serial.print(valMPhotoRef);
   Serial.print(" ");
-  Serial.println(sub_State);
+  Serial.println(count_wait_box);
+  
 }
