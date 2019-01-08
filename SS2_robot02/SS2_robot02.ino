@@ -7,10 +7,10 @@ ServoTimer2 servo;
 #define LINE_M A1
 #define LINE_L A2
 // 前側PSDセンサ(F)のアナログピン
-#define PSD_F A4
+#define PSD_F A3
 //側面PSDセンサ(R:右,L:左)のアナログピン
-#define PSD_R A3
-#define PSD_L A5
+#define PSD_R A5
+#define PSD_L A4
 // モータ駆動用の PWM ピン
 #define MOTOR_L_IN1 5
 #define MOTOR_L_IN2 6
@@ -50,6 +50,9 @@ ServoTimer2 servo;
 //定数たち
 int IKITI_PHOTO_REF = 400;//フォトリフレクタの白黒の閾値
 double RATIO_RLSPEED = 0.8;//左右のモーターの比
+int SERVO_UNDER = 1240;//箱が下がった時のサーボの値
+int SERVO_UP = 540;//箱が上がった時のサーボの値
+int IKITI_PSD = 100;//前のPSDのやつ、これより下の値だとやばい、これより上なら箱がちゃんと降りてる
 
 //変数たち
 int state;
@@ -145,6 +148,7 @@ void loop() {
           delaytime =  700;
           Cross();
           sub_State = 1;
+          Serial.println("0 to 1");
           break;
         case 1 ://曲がった後のライントレース
           lineTrace();
@@ -159,6 +163,7 @@ void loop() {
             sub_State = 2;
             count_wait_box = 0;
           }
+          Serial.println("1 to 2");
           break;
         case 2 : //箱を下げる
           val_Servo += 20;
@@ -213,9 +218,9 @@ void loop() {
           LSpeed = 255;
           delaytime = 2000;
           Cross();
-          sub_State = 7;
+          sub_State = 8;
           break;
-        case 7 :
+        case 8 :
           lineTrace();
           tProc = millis() - tPrev;
           if (tProc < 20) {
@@ -315,15 +320,23 @@ void loop() {
           delay(20);
           break;
         case 7 :
+          setMotorPulse(255, -255);
+          delay(1200);
+          sub_State = 8;
+        case 8 :
           kabeTrace();
-
+          isCross();
+          if(count_Cross > 0){
+            setMotorPulse(0,0);
+          }
           break;
-          /*case :
-            break;
-            case :
-            break;
-            case :
-            break;*/
+        case 9 :
+          
+          break;
+        /*case :
+          break;
+        case :
+          break; */
       }
       break;
     case 4 : //ボックスまでライントレース
@@ -339,6 +352,6 @@ void loop() {
   Serial.print(" ");
   Serial.print(valMPhotoRef);
   Serial.print(" ");
-  Serial.println(count_wait_box);
-  
+  Serial.println(count_Cross);
+
 }
