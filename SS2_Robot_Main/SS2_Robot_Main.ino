@@ -396,6 +396,7 @@ void loop() {
       }
       break;
   }
+  sendMyState(state);
   Serial.print(state);
   Serial.print(" ");
   Serial.print(sub_State);
