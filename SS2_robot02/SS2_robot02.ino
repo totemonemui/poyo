@@ -331,24 +331,69 @@ void loop() {
         case 8 :
           kabeTrace();
           isCross();
-          if(count_Cross > 0){
-            setMotorPulse(0,0);
+          if (count_Cross > 0) {
+            setMotorPulse(0, 0);
+            sub_State = 9;
           }
           break;
-        case 9 :
-          
+        case 9 ://安全な方法でメインの線に戻る
+          LSpeed = -255;
+          RSpeed = 255;
+          delaytime = 1000;
+          Cross();
+          sub_State = 10;
+          count_wait_box = 0;
           break;
-        /*case :
+        case 10 ://しばらくは交差点を無視してライントレース
+          count_Cross = 0;
+          lineTrace();
+          tProc = millis() - tPrev;
+          if (tProc < 20) {
+            // 処理時間と合わせて 20ms になるように delay を入れる
+            delay(20 - tProc);
+          }
+          tPrev = millis();
+          count_wait_box += 1;
+          if (count_wait_box > 700) {
+            count_wait_box = 0;
+            state = 4;
+            sub_State = 0;
+          }
           break;
-        case :
-          break; */
       }
       break;
     case 4 : //ボックスまでライントレース
+      lineTrace();
+      tProc = millis() - tPrev;
+      if (tProc < 20) {
+        // 処理時間と合わせて 20ms になるように delay を入れる
+        delay(20 - tProc);
+      }
+      tPrev = millis();
+      if (count_Cross > 0) {
+        setMotorPulse(0, 0);
+        state = 5;
+      }
       break;
     case 5 : //ボックスに到達し球を入れる
-      break;
-    case 6 : //戻る?
+      switch (sub_State) {
+        case 0 :
+          val_Servo += 20;
+          servo.write(val_Servo);
+          delay(200);
+          if (val_Servo > 1240) {
+            sub_State = 1;
+          }
+          break;
+        case 1 :
+          setMotorPulse(-100, -100);
+          delay(1500);
+          sub_State = 2;
+          break;
+        case 2 :
+          setMotorPulse(0, 0);
+          break;
+      }
       break;
   }
   Serial.print(state);
