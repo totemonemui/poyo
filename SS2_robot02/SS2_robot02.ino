@@ -1,6 +1,8 @@
 #include <ServoTimer2.h>
+#include <SoftwareSerial.h>
 
 ServoTimer2 servo;
+SoftwareSerial mySerial(2, 3);//RX, TX 無線モジュールとのシリアル通信
 
 // フォトリフレクタのアナログピン
 #define LINE_R A0
@@ -100,6 +102,7 @@ int kb_xInf = 0;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(1000000);
+  mySerial.begin(9600);
   servo.attach(2);
   servo.write(544);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
