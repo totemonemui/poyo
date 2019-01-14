@@ -26,6 +26,8 @@ SoftwareSerial mySerial(2, 3);//RX, TX 無線モジュールとのシリアル�
 // **_NUM: 分子, **_DEN: 分母 を指定する
 #define LT_KP_NUM 1
 #define LT_KP_DEN 20
+#define LT_KI_NUM 2
+#define LT_KI_DEN 10
 #define LT_KD_NUM 1
 #define LT_KD_DEN 50
 
@@ -34,8 +36,8 @@ SoftwareSerial mySerial(2, 3);//RX, TX 無線モジュールとのシリアル�
 // **_NUM: 分子, **_DEN: 分母 を指定する
 #define F_KP_NUM 2
 #define F_KP_DEN 1
-#define F_KI_NUM 2
-#define F_KI_DEN 10
+#define F_KI_NUM 0
+#define F_KI_DEN 0
 #define F_KD_NUM 1
 #define F_KD_DEN 100
 
@@ -57,31 +59,30 @@ int SERVO_UP = 540;//箱が上がった時のサーボの値
 int IKITI_PSD = 100;//前のPSDのやつ、これより下の値だとやばい、これより上なら箱がちゃんと降りてる
 
 //変数たち
-int state;
-int sub_State;
-int count_Cross = 0;
-int State_Cross = 0;
+int state; //大まかなステート
+int sub_State; //ステート内での遷移
+int count_Cross = 0; //何回フォトリフレクタが何回続けて交差点の状態になったか
 //変数たち
 int valRPhotoRef;//右のフォトリフレクターの値
-int valMPhotoRef;
-int valLPhotoRef;
-int valFPSD;
-int valRPSD;
-int valLPSD;
-int RSpeed;
-int LSpeed;
-int delaytime;
-int count_Dassen = 0;
-int data_photo_ref[4] = {0, 0, 0, 0};
-int buttonState = 0;
-int count_wait_box = 0;
-int count_PSD_under;
-int val_Servo;
+int valMPhotoRef;//中央のフォトリフレクターの値
+int valLPhotoRef;//左のフォトリフレクターの値
+int valFPSD;//箱についてるPSDの値
+int valRPSD;//右のPSDの値
+int valLPSD;//左のPSDの値
+int RSpeed;//右のモータのスピード、交差点で曲がる時に使用
+int LSpeed;//左のモータのスピード、交差点で曲がる時に使用
+int delaytime;//回り続ける時間、交差点で曲がる時に使用
+int count_Dassen = 0;//脱線の状態に何回連続でなったか
+int data_photo_ref[4] = {0, 0, 0, 0};//脱線時にどちらに戻るか参照するためのデータ
+int buttonState = 0;//ボタンの値
+int count_time = 0;//しばらく経ってから次へ移行するときとかに使う
+int val_Servo;//サーボの値
 int countPSD = 0; //回転の際にPSDの値が何回150を下回ったか確認する用
 
 //ライントレース用
 int x = 0; // 今の状態
 int xPrev = 0; // 前の状態
+int xInt = 0; //状態の積分値
 int xDiff = 0; // 状態の微分値
 unsigned long tPrev; // 前の時刻
 unsigned int tProc;
@@ -97,7 +98,7 @@ int eDiff = 0; // 偏差の微分値
 int kb_x = 0; // 今の状態
 int kb_xPrev = 0; // 前の状態
 int kb_xDiff = 0; // 状態の微分値
-int kb_xInf = 0;
+int kb_xInf = 0; // 状態の積分値
 
 void setup() {
   // put your setup code here, to run once:
@@ -149,10 +150,10 @@ void loop() {
           break;
         case 9 ://曲がった後のライントレース
           lineTrace();
-          count_wait_box += 1;
-          if (count_wait_box > 1000) {
+          count_time += 1;
+          if (count_time > 1000) {
             sub_State = 2;
-            count_wait_box = 0;
+            count_time = 0;
           }
           Serial.println("1 to 2");
           break;
@@ -174,12 +175,12 @@ void loop() {
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
             if (e <= 20 && e >= -20) {
-              count_wait_box += 1;
+              count_time += 1;
             }
             if (e > 20 || e < -20) {
-              count_wait_box = 0;
+              count_time = 0;
             }
-            if (count_wait_box > 2) {//ちょうど良い位置になったら次へ
+            if (count_time > 2) {//ちょうど良い位置になったら次へ
               sub_State = 4;
             }
           }
@@ -222,12 +223,6 @@ void loop() {
       switch (sub_State) {
         case 0 ://まずはライントレース
           lineTrace();
-          tProc = millis() - tPrev;
-          if (tProc < 20) {
-            // 処理時間と合わせて 20ms になるように delay を入れる
-            delay(20 - tProc);
-          }
-          tPrev = millis();
           if (count_Cross > 0) { //交差点を検知
             setMotorPulse(0, 0);
             count_Cross = 0;
@@ -254,12 +249,12 @@ void loop() {
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
             if (e <= 20 && e >= -20) {
-              count_wait_box += 1;
+              count_time += 1;
             }
             if (e > 20 || e < -20) {
-              count_wait_box = 0;
+              count_time = 0;
             }
-            if (count_wait_box > 2) {//ちょうど良い位置になったら次へ
+            if (count_time > 2) {//ちょうど良い位置になったら次へ
               sub_State = 4;
             }
           }
@@ -312,14 +307,14 @@ void loop() {
           delaytime = 1000;
           Cross();
           sub_State = 10;
-          count_wait_box = 0;
+          count_time = 0;
           break;
         case 10 ://しばらくは交差点を無視してライントレース
           count_Cross = 0;
           lineTrace();
-          count_wait_box += 1;
-          if (count_wait_box > 700) {
-            count_wait_box = 0;
+          count_time += 1;
+          if (count_time > 700) {
+            count_time = 0;
             state = 4;
             sub_State = 0;
           }
