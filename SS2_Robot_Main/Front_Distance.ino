@@ -10,4 +10,11 @@ void frontDistanceControl() {
   int w = 0;
   // モータの PWM パルスを設定
   setMotorPulse(v - w, v + w);
+  
+  tProc = millis() - tPrev;
+  if (tProc < 20) {
+    // 処理時間と合わせて 20ms になるように delay を入れる
+    delay(20 - tProc);
+  }
+  tPrev = millis();
 }

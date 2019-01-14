@@ -130,12 +130,6 @@ void loop() {
       break;
     case 1 : //一つ目の交差点までライントレース
       lineTrace();
-      tProc = millis() - tPrev;
-      if (tProc < 20) {
-        // 処理時間と合わせて 20ms になるように delay を入れる
-        delay(20 - tProc);
-      }
-      tPrev = millis();
       if (count_Cross > 0) {
         setMotorPulse(0, 0);
         count_Cross = 0;
@@ -155,12 +149,6 @@ void loop() {
           break;
         case 9 ://曲がった後のライントレース
           lineTrace();
-          tProc = millis() - tPrev; //ここの処理いずれlinetraceに入れたい
-          if (tProc < 20) {
-            // 処理時間と合わせて 20ms になるように delay を入れる
-            delay(20 - tProc);
-          }
-          tPrev = millis();
           count_wait_box += 1;
           if (count_wait_box > 1000) {
             sub_State = 2;
@@ -185,12 +173,6 @@ void loop() {
           }
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
-            tProc = millis() - tPrev;
-            if (tProc < 20) {
-              // 処理時間と合わせて 20ms になるように delay を入れる
-              delay(20 - tProc);
-            }
-            tPrev = millis();
             if (e <= 20 && e >= -20) {
               count_wait_box += 1;
             }
@@ -225,12 +207,6 @@ void loop() {
           break;
         case 8 :
           lineTrace();
-          tProc = millis() - tPrev;
-          if (tProc < 20) {
-            // 処理時間と合わせて 20ms になるように delay を入れる
-            delay(20 - tProc);
-          }
-          tPrev = millis();
           if (count_Cross > 0) { //線を無視してるんだけどもうちょいうまくやりたい
             lineTrace();
             delay(100);
@@ -277,12 +253,6 @@ void loop() {
           }
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
-            tProc = millis() - tPrev;
-            if (tProc < 20) {
-              // 処理時間と合わせて 20ms になるように delay を入れる
-              delay(20 - tProc);
-            }
-            tPrev = millis();
             if (e <= 20 && e >= -20) {
               count_wait_box += 1;
             }
@@ -347,12 +317,6 @@ void loop() {
         case 10 ://しばらくは交差点を無視してライントレース
           count_Cross = 0;
           lineTrace();
-          tProc = millis() - tPrev;
-          if (tProc < 20) {
-            // 処理時間と合わせて 20ms になるように delay を入れる
-            delay(20 - tProc);
-          }
-          tPrev = millis();
           count_wait_box += 1;
           if (count_wait_box > 700) {
             count_wait_box = 0;
@@ -364,12 +328,6 @@ void loop() {
       break;
     case 4 : //ボックスまでライントレース
       lineTrace();
-      tProc = millis() - tPrev;
-      if (tProc < 20) {
-        // 処理時間と合わせて 20ms になるように delay を入れる
-        delay(20 - tProc);
-      }
-      tPrev = millis();
       if (count_Cross > 0) {
         setMotorPulse(0, 0);
         state = 5;
