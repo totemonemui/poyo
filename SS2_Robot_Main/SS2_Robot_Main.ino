@@ -308,6 +308,12 @@ void loop() {
           isCross();
           if (count_Cross > 0) {
             setMotorPulse(0, 0);
+            sub_State = 11;
+          }
+          break;
+        case 11 :
+          setMotorPulse(0, 0);
+          if(getPartnerState()>4){
             sub_State = 9;
           }
           break;
