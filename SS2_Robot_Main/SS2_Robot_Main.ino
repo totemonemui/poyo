@@ -37,7 +37,7 @@ SoftwareSerial mySerial(2, 3);//RX, TX 無線モジュールとのシリアル�
 #define F_KP_NUM 2
 #define F_KP_DEN 1
 #define F_KI_NUM 0
-#define F_KI_DEN 0
+#define F_KI_DEN 1
 #define F_KD_NUM 1
 #define F_KD_DEN 100
 
