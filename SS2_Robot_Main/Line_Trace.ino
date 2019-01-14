@@ -8,7 +8,7 @@ void lineTrace() {
   x = valRPhotoRef - valLPhotoRef;
   // 状態の時間微分.50 倍 は 0.02(秒) 分の 1 の意味.
   xDiff = (x - xPrev) * 50;
-  eInt += x / 50;
+  xInt += x / 50;
   xPrev = x;
 
   // 前進指令値
