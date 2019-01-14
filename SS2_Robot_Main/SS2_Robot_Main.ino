@@ -312,9 +312,9 @@ void loop() {
           }
           break;
         case 9 ://安全な方法でメインの線に戻る
-          LSpeed = -255;
+          LSpeed = 0;
           RSpeed = 255;
-          delaytime = 1000;
+          delaytime = 700;
           Cross();
           sub_State = 10;
           count_wait_box = 0;
