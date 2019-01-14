@@ -150,10 +150,10 @@ void loop() {
           LSpeed = 0;
           delaytime =  700;
           Cross();
-          sub_State = 1;
+          sub_State = 9;
           Serial.println("0 to 1");
           break;
-        case 1 ://曲がった後のライントレース
+        case 9 ://曲がった後のライントレース
           lineTrace();
           tProc = millis() - tPrev; //ここの処理いずれlinetraceに入れたい
           if (tProc < 20) {
