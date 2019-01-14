@@ -124,7 +124,7 @@ void loop() {
       if (buttonState == HIGH) {
 
       } else {
-        state = 2;
+        state = 1;
       }
       delay(20);
       break;
