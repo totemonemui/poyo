@@ -297,34 +297,9 @@ void loop() {
           servo.write(val_Servo);
           delay(100);
           if (val_Servo < 540) {
-            sub_State = 5;
+            sub_State = 8;
           }
           break;
-        case 5 : //ちょっとだけバック
-          setMotorPulse(-200, -200);
-          delay(700);
-          sub_State = 6;
-          break;
-        case 6 : //回転
-          setMotorPulse(255, -255);
-          if (valRPSD < 150) {
-            countPSD += 1;
-          } else {
-            countPSD = 0;
-          }
-
-          if (countPSD > 3) {
-            setMotorPulse(255, -255);
-            countPSD = 0;
-            sub_State = 7;
-            delay(700);
-          }
-          delay(20);
-          break;
-        case 7 :
-          setMotorPulse(255, -255);
-          delay(1200);
-          sub_State = 8;
         case 8 :
           kabeTrace();
           isCross();
