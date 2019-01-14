@@ -210,12 +210,12 @@ void loop() {
           lineTrace();
           if (count_Cross > 0) { //線を無視してるんだけどもうちょいうまくやりたい
             lineTrace();
-            delay(100);
-            lineTrace();
-            delay(10);
             count_Cross = 0;
-            sub_State = 0;
-            state = 3;
+            count_time += 1;
+            if(count_time>4){
+              sub_State = 0;
+              state = 3;
+            }
           }
           break;
       }
@@ -310,8 +310,8 @@ void loop() {
           count_time = 0;
           break;
         case 10 ://しばらくは交差点を無視してライントレース
-          count_Cross = 0;
           lineTrace();
+          count_Cross = 0;
           count_time += 1;
           if (count_time > 700) {
             count_time = 0;
