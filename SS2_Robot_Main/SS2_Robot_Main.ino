@@ -60,7 +60,7 @@ int IKITI_PSD = 100;//前のPSDのやつ、これより下の値だとやばい�
 
 //変数たち
 int state; //大まかなステート
-int sub_State; //ステート内での遷移
+char sub_State = "base"; //ステート内での遷移
 int count_Cross = 0; //何回フォトリフレクタが何回続けて交差点の状態になったか
 //変数たち
 int valRPhotoRef;//右のフォトリフレクターの値
@@ -140,32 +140,32 @@ void loop() {
       break;
     case 2 : //球のある通り(線あり)に入り球を回収
       switch (sub_State) {
-        case 0 ://交差点を曲がる
+        case "base" ://交差点を曲がる
           RSpeed = 255;
           LSpeed = 0;
           delaytime =  700;
           Cross();
-          sub_State = 9;
+          sub_State = "linetrace";
           Serial.println("0 to 1");
           break;
-        case 9 ://曲がった後のライントレース
+        case "linetrace" ://曲がった後のライントレース
           lineTrace();
           count_time += 1;
           if (count_time > 1000) {
-            sub_State = 2;
+            sub_State = "boxdown";
             count_time = 0;
           }
           Serial.println("1 to 2");
           break;
-        case 2 : //箱を下げる
+        case "boxdown" : //箱を下げる
           val_Servo += 20;
           servo.write(val_Servo);
           delay(200);
           if (val_Servo > 1240) {
-            sub_State = 3;
+            sub_State = "frontFB";
           }
           break;
-        case 3 : //前側の壁へのフィードバック制御
+        case "frontFB" : //前側の壁へのフィードバック制御
           getFPSD();
           if (valFPSD <= 100 ) { //壁に当たって下がりきらなかった時の処理
             getFPSD();
@@ -181,39 +181,39 @@ void loop() {
               count_time = 0;
             }
             if (count_time > 2) {//ちょうど良い位置になったら次へ
-              sub_State = 4;
+              sub_State = "boxup";
             }
           }
           break;
-        case 4 : //箱を上げる処理
+        case "boxup" : //箱を上げる処理
           setMotorPulse(0, 0);
           val_Servo -= 20;
           servo.write(val_Servo);
           delay(100);
           if (val_Servo < 540) {
-            sub_State = 5;
+            sub_State = "back";
           }
           break;
-        case 5 : //ちょっとだけバック
+        case "back" : //ちょっとだけバック
           setMotorPulse(-200, -200);
           delay(700);
-          sub_State = 6;
+          sub_State = "turn";
           break;
-        case 6 : //回転
+        case "turn" : //回転
           RSpeed = -255;
           LSpeed = 255;
           delaytime = 2000;
           Cross();
-          sub_State = 8;
+          sub_State = "noCrossLT";
           break;
-        case 8 :
+        case "noCrossLT" :
           lineTrace();
           if (count_Cross > 0) { //線を無視してるんだけどもうちょいうまくやりたい
             lineTrace();
             count_Cross = 0;
             count_time += 1;
             if(count_time>4){
-              sub_State = 0;
+              sub_State = "base";
               state = 3;
             }
           }
@@ -221,26 +221,26 @@ void loop() {
       }
     case 3 : //球のある通り(線なし)に入り球を回収
       switch (sub_State) {
-        case 0 ://まずはライントレース
+        case "base" ://まずはライントレース
           lineTrace();
           if (count_Cross > 0) { //交差点を検知
             setMotorPulse(0, 0);
             count_Cross = 0;
-            sub_State = 1;
+            sub_State = "noLine";
           }
           break;
-        case 1 : //線をまたいで線がないゾーンへ
+        case "noLine" : //線をまたいで線がないゾーンへ
           setMotorPulse(255, 255);
           delay(1000);
-          sub_State = 2;
+          sub_State = "boxdown2";
           break;
-        case 2 : //箱を下げる
+        case "boxdown2" : //箱を下げる
           servo.write(1240);
           val_Servo = 1240;
           delay(500);
-          sub_State = 3;
+          sub_State = "frontFB2";
           break;
-        case 3 : //前側の壁へのフィードバック制御
+        case "frontFB2" : //前側の壁へのフィードバック制御
           getFPSD();
           if (valFPSD <= 100 ) { //壁に当たって下がりきらなかった時の処理
             getFPSD();
@@ -255,25 +255,25 @@ void loop() {
               count_time = 0;
             }
             if (count_time > 2) {//ちょうど良い位置になったら次へ
-              sub_State = 4;
+              sub_State = "boxup2";
             }
           }
           break;
-        case 4 : //箱を上げる処理
+        case "boxup2" : //箱を上げる処理
           setMotorPulse(0, 0);
           val_Servo -= 20;
           servo.write(val_Servo);
           delay(100);
           if (val_Servo < 540) {
-            sub_State = 5;
+            sub_State = "back2";
           }
           break;
-        case 5 : //ちょっとだけバック
+        case "back2" : //ちょっとだけバック
           setMotorPulse(-200, -200);
           delay(700);
-          sub_State = 6;
+          sub_State = "turn2";
           break;
-        case 6 : //回転
+        case "turn2" : //回転
           setMotorPulse(255, -255);
           if (valRPSD < 150) {
             countPSD += 1;
@@ -284,39 +284,39 @@ void loop() {
           if (countPSD > 3) {
             setMotorPulse(255, -255);
             countPSD = 0;
-            sub_State = 7;
+            sub_State = "littleTurn";
             delay(700);
           }
           delay(20);
           break;
-        case 7 :
+        case "littleTurn" :
           setMotorPulse(255, -255);
           delay(1200);
-          sub_State = 8;
-        case 8 :
+          sub_State = "kabeFB";
+        case "kabeFB" :
           kabeTrace();
           isCross();
           if (count_Cross > 0) {
             setMotorPulse(0, 0);
-            sub_State = 9;
+            sub_State = "toLine";
           }
           break;
-        case 9 ://安全な方法でメインの線に戻る
+        case "toLine" ://安全な方法でメインの線に戻る
           LSpeed = -255;
           RSpeed = 255;
           delaytime = 1000;
           Cross();
-          sub_State = 10;
+          sub_State = "noCrossLT2";
           count_time = 0;
           break;
-        case 10 ://しばらくは交差点を無視してライントレース
+        case "noCrossLT2" ://しばらくは交差点を無視してライントレース
           lineTrace();
           count_Cross = 0;
           count_time += 1;
           if (count_time > 700) {
             count_time = 0;
             state = 4;
-            sub_State = 0;
+            sub_State = "base";
           }
           break;
       }
@@ -330,20 +330,20 @@ void loop() {
       break;
     case 5 : //ボックスに到達し球を入れる
       switch (sub_State) {
-        case 0 :
+        case "base" :
           val_Servo += 20;
           servo.write(val_Servo);
           delay(200);
           if (val_Servo > 1240) {
-            sub_State = 1;
+            sub_State = "littleback";
           }
           break;
-        case 1 :
+        case "littleback" :
           setMotorPulse(-100, -100);
           delay(1500);
-          sub_State = 2;
+          sub_State = "final";
           break;
-        case 2 :
+        case "final" :
           setMotorPulse(0, 0);
           break;
       }
