@@ -300,6 +300,12 @@ void loop() {
           servo.write(val_Servo);
           delay(100);
           if (val_Servo < 540) {
+            sub_State = 11;
+          }
+          break;
+        case 11 :
+          setMotorPulse(0, 0);
+          if(getPartnerState()>4){
             sub_State = 5;
           }
           break;
