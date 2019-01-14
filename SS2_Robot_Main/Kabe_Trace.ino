@@ -12,11 +12,11 @@ void kabeTrace(){
   kb_xInf += kb_x/50;
   kb_xPrev = kb_x;
   // 前進指令値
-  int v = 200;
+  int v = -200;
   // 回転指令値 (左回り正) PD 制御を実装している
   int w = kb_x * KT_KP_NUM / KT_KP_DEN + kb_xInf * KT_KI_NUM / KT_KI_DEN + kb_xDiff * KT_KD_NUM / KT_KD_DEN;
   // モータの PWM パルスを設定 
-  setMotorPulse(v - w, v + w);
+  setMotorPulse(v + w, v - w);
   // 処理時間を計算
   unsigned int tProc = millis() - tPrev; 
   if (tProc < 20) {
