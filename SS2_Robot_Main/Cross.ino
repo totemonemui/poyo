@@ -50,7 +50,6 @@ void Cross() { //交差点時の処理
     setMotorPulse(LSpeed, RSpeed);
   }
   count_Cross = 0;
-  State_Cross += 1;
 
 }
 

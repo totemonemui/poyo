@@ -62,7 +62,6 @@ int IKITI_PSD = 100;//前のPSDのやつ、これより下の値だとやばい�
 int state;
 int sub_State;
 int count_Cross = 0;
-int State_Cross = 0;
 //変数たち
 int valRPhotoRef;//右のフォトリフレクターの値
 int valMPhotoRef;
@@ -76,7 +75,7 @@ int delaytime;
 int count_Dassen = 0;
 int data_photo_ref[4] = {0, 0, 0, 0};
 int buttonState = 0;
-int count_wait_box = 0;
+int count_time = 0;
 int count_PSD_under;
 int val_Servo;
 int countPSD = 0; //回転の際にPSDの値が何回150を下回ったか確認する用
@@ -152,10 +151,10 @@ void loop() {
           break;
         case 10 ://曲がった後のライントレース
           lineTrace();
-          count_wait_box += 1;
-          if (count_wait_box > 50) {
+          count_time += 1;
+          if (count_time > 50) {
             sub_State = 2;
-            count_wait_box = 0;
+            count_time = 0;
           }
           Serial.println("1 to 2");
           break;
@@ -177,12 +176,12 @@ void loop() {
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
             if (e <= 20 && e >= -20) {
-              count_wait_box += 1;
+              count_time += 1;
             }
             if (e > 20 || e < -20) {
-              count_wait_box = 0;
+              count_time = 0;
             }
-            if (count_wait_box > 2) {//ちょうど良い位置になったら次へ
+            if (count_time > 2) {//ちょうど良い位置になったら次へ
               sub_State = 4;
             }
           }
@@ -252,12 +251,12 @@ void loop() {
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
             if (e <= 20 && e >= -20) {
-              count_wait_box += 1;
+              count_time += 1;
             }
             if (e > 20 || e < -20) {
-              count_wait_box = 0;
+              count_time = 0;
             }
-            if (count_wait_box > 2) {//ちょうど良い位置になったら次へ
+            if (count_time > 2) {//ちょうど良い位置になったら次へ
               sub_State = 4;
             }
           }
@@ -285,14 +284,14 @@ void loop() {
           delaytime = 700;
           Cross();
           sub_State = 10;
-          count_wait_box = 0;
+          count_time = 0;
           break;
         case 10 ://しばらくは交差点を無視してライントレース
           count_Cross = 0;
           lineTrace();
-          count_wait_box += 1;
-          if (count_wait_box > 700) {
-            count_wait_box = 0;
+          count_time += 1;
+          if (count_time > 700) {
+            count_time = 0;
             state = 4;
             sub_State = 0;
           }
