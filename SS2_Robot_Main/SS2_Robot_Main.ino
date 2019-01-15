@@ -242,6 +242,7 @@ void loop() {
           }
           break;
       }
+      break;
     case 3 : //球のある通り(線なし)に入り球を回収
       switch (sub_State) {
         case 0 ://まずはライントレース
