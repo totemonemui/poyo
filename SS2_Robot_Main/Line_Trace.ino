@@ -2,7 +2,7 @@ void lineTrace() {
   isDassen();//脱線の検出
   isCross();//交差点の検出
   Dassen();
-  
+
   //PD制御
   // 左右のセンサ値の差を状態として扱う.正のとき右寄り,負のとき左寄り.
   x = valRPhotoRef - valLPhotoRef;
@@ -17,4 +17,11 @@ void lineTrace() {
 
   // モータの PWM パルスを設定
   setMotorPulse(v - w, v + w);
+
+  tProc = millis() - tPrev;
+  if (tProc < 20) {
+    // 処理時間と合わせて 20ms になるように delay を入れる
+    delay(20 - tProc);
+  }
+  tPrev = millis();
 }
