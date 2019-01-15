@@ -209,14 +209,15 @@ void loop() {
           break;
         case 8 :
           lineTrace();
-          if (count_Cross > 0) { //線を無視してるんだけどもうちょいうまくやりたい
+          if (count_Cross > 0) {
             lineTrace();
-            delay(100);
-            lineTrace();
-            delay(10);
             count_Cross = 0;
-            sub_State = 0;
-            state = 3;
+            count_time += 1;
+            if(count_time>4){
+              count_time = 0;
+              sub_State = 0;
+              state = 3;
+            }
           }
           break;
       }
