@@ -11,7 +11,5 @@ int sendMyState(int state){
 }
 
 int getPartnerState(void){
-    static char data = 0xFF;
-    while(mySerial.available())data = mySerial.read();//最後に送られた文字のみ保存する
-    return (int)data;
+    return (int)(mySerial.peak());
 }
