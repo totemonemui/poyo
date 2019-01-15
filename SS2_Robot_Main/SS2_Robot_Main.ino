@@ -26,6 +26,8 @@ SoftwareSerial mySerial(2, 3);//RX, TX 無線モジュールとのシリアル�
 // **_NUM: 分子, **_DEN: 分母 を指定する
 #define LT_KP_NUM 1
 #define LT_KP_DEN 20
+#define LT_KI_NUM 0
+#define LT_KI_DEN 1
 #define LT_KD_NUM 1
 #define LT_KD_DEN 50
 
@@ -83,6 +85,7 @@ int countPSD = 0; //回転の際にPSDの値が何回150を下回ったか確認
 int x = 0; // 今の状態
 int xPrev = 0; // 前の状態
 int xDiff = 0; // 状態の微分値
+int xInt = 0; //状態の積分値
 unsigned long tPrev; // 前の時刻
 unsigned int tProc;
 
