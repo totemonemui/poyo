@@ -11,5 +11,5 @@ int sendMyState(int state){
 }
 
 int getPartnerState(void){
-    return (int)(mySerial.peak());
+    //return (int)(mySerial.peak());
 }
