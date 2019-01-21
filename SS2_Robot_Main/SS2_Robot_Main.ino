@@ -2,7 +2,7 @@
 #include <SoftwareSerial.h>
 
 ServoTimer2 servo;
-SoftwareSerial mySerial(2, 3);//RX, TX 無線モジュールとのシリアル通信
+SoftwareSerial mySerial(3, 4);//RX, TX 無線モジュールとのシリアル通信
 
 // フォトリフレクタのアナログピン
 #define LINE_R A0
