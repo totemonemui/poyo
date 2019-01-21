@@ -268,6 +268,15 @@ void loop() {
           servo.write(val_Servo);
           delay(100);
           if (val_Servo < 540) {
+            sub_State = 11;
+          }
+          break;
+        case 11 :
+          setMotorPulse(0, 0);
+          if(getPartnerState()>4){
+            sub_State = 8;
+          }
+          else if(getPartnerState()==0xff){
             sub_State = 8;
           }
           break;
@@ -327,7 +336,6 @@ void loop() {
       }
       break;
   }
-  sendMyState(state);
   Serial.print(state);
   Serial.print(" ");
   Serial.print(sub_State);
