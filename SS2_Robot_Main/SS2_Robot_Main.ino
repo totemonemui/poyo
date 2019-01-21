@@ -77,7 +77,7 @@ int data_photo_ref[4] = {0, 0, 0, 0};
 int buttonState = 0;
 int count_time = 0;
 int count_PSD_under;
-int val_Servo;
+int val_Servo = 540;
 int countPSD = 0; //回転の際にPSDの値が何回150を下回ったか確認する用
 
 //ライントレース用
@@ -106,7 +106,7 @@ void setup() {
   Serial.begin(1000000);
   mySerial.begin(9600);
   servo.attach(2);
-  servo.write(544);
+  servo.write(val_Servo);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   tPrev = millis();
   state = 0;
@@ -161,7 +161,7 @@ void loop() {
         case 2 : //箱を下げる
           val_Servo += 20;
           servo.write(val_Servo);
-          delay(200);
+          delay(50);
           if (val_Servo > 1240) {
             sub_State = 3;
           }
