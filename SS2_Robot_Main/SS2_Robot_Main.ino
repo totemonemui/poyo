@@ -161,7 +161,7 @@ void loop() {
         case 2 : //箱を下げる
           val_Servo += 20;
           servo.write(val_Servo);
-          delay(200);
+          delay(50);
           if (val_Servo > 1240) {
             sub_State = 3;
           }
