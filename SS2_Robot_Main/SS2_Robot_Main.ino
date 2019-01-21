@@ -276,6 +276,9 @@ void loop() {
           if(getPartnerState()>4){
             sub_State = 8;
           }
+          else if(getPartnerState()==0xff){
+            sub_State = 8;
+          }
         case 8 :
           kabeTrace();
           isCross();
