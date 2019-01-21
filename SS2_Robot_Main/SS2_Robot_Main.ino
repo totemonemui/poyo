@@ -323,11 +323,12 @@ void loop() {
           break;
         case 2 :
           setMotorPulse(0, 0);
+          sendMyState(state);
+          delay(100);
           break;
       }
       break;
   }
-  sendMyState(state);
   Serial.print(state);
   Serial.print(" ");
   Serial.print(sub_State);
