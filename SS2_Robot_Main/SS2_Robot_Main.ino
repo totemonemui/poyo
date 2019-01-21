@@ -335,7 +335,7 @@ void loop() {
       }
       break;
   }
-  sendMyState(state);
+  //sendMyState(state);
   Serial.print(getPartnerState());
   Serial.print(" ");
   Serial.print(state);
