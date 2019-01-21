@@ -9,10 +9,10 @@ SoftwareSerial mySerial(3, 4);//RX, TX 無線モジュールとのシリアル�
 #define LINE_M A1
 #define LINE_L A2
 // 前側PSDセンサ(F)のアナログピン
-#define PSD_F A3
+#define PSD_F A5
 //側面PSDセンサ(R:右,L:左)のアナログピン
-#define PSD_R A5
-#define PSD_L A4
+#define PSD_R A4
+#define PSD_L A3
 // モータ駆動用の PWM ピン
 #define MOTOR_L_IN1 5
 #define MOTOR_L_IN2 6
