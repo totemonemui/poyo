@@ -89,7 +89,7 @@ unsigned long tPrev; // 前の時刻
 unsigned int tProc;
 
 //前側の壁に近づく用
-int refF = 620; // 目標値.ここを各自計測した値に設定する.
+int refF = 580; // 目標値.ここを各自計測した値に設定する.
 int e = 0; // 今の偏差
 int ePrev = 0; // 前の偏差
 int eInt = 0; // 偏差の積分値
