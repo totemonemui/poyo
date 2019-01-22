@@ -371,8 +371,9 @@ void loop() {
         case 2 :
           setMotorPulse(0, 0);
           count_time += 1;
-          delay(20);
-          if(count_time > 500){
+          sendMyState(state);
+          delay(100);
+          if(count_time > 100 || getPartnerState()>3){
             sub_State = 3;
           }
           break;
@@ -388,7 +389,6 @@ void loop() {
       }
       break;
   }
-  sendMyState(state);
   Serial.print(state);
   Serial.print(" ");
   Serial.print(sub_State);
