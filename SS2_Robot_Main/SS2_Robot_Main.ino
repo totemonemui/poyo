@@ -379,7 +379,7 @@ void loop() {
           break;
         case 3 :
           setMotorPulse(-200, -200);
-          delay(2000);
+          delay(5000);
           sub_State = 4;
           break;
         case 4 :
