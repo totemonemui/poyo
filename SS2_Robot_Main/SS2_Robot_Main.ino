@@ -305,104 +305,105 @@ void loop() {
           }
           delay(20);
           break;
-          case 8 :
-            kabeTrace();
-            if (valLPSD < 150) {
-              count_time += 1;
-            }
-            if (count_time > 3) {
-              sub_State = 11;
-              count_time = 0;
-            }
-            break;
-          case 11 :
-            setMotorPulse(200, 200);
-            isCross();
-            if (count_Cross > 0) {
-              setMotorPulse(0, 0);
-              sub_State = 9;
-            }
-            delay(20);
-          case 9 ://安全な方法でメインの線に戻る
-            LSpeed = 0;
-            RSpeed = 255;
-            delaytime = 700;
-            Cross();
-            sub_State = 10;
-            count_time = 0;
-            break;
-          case 10 ://しばらくは交差点を無視してライントレース
-            count_Cross = 0;
-            lineTrace();
+        case 8 :
+          kabeTrace();
+          if (valLPSD < 150) {
             count_time += 1;
-            if (count_time > 150) {
-              count_time = 0;
-              state = 4;
-              sub_State = 0;
-            }
-            break;
+          }
+          if (count_time > 3) {
+            sub_State = 11;
+            count_time = 0;
           }
           break;
-        case 4 : //ボックスまでライントレース
-          switch (sub_State) {
-            case 0 :
-              lineTrace();
-              if (count_Cross > 0) {
-                setMotorPulse(0, 0);
-                sub_State = 1;
-              }
-              break;
-            case 1 :
-              lineTrace();
-              if (count_Cross > 0) {
-                setMotorPulse(0, 0);
-                state = 5;
-                sub_State = 0;
-              }
-              break;
+        case 11 :
+          setMotorPulse(200, 200);
+          isCross();
+          if (count_Cross > 0) {
+            setMotorPulse(0, 0);
+            sub_State = 9;
           }
+          delay(20);
+        case 9 ://安全な方法でメインの線に戻る
+          LSpeed = 0;
+          RSpeed = 255;
+          delaytime = 700;
+          Cross();
+          sub_State = 10;
+          count_time = 0;
           break;
-        case 5 : //ボックスに到達し球を入れる
-          switch (sub_State) {
-            case 0 :
-              val_Servo += 20;
-              servo.write(val_Servo);
-              delay(200);
-              if (val_Servo > 1240) {
-                sub_State = 1;
-              }
-              break;
-            case 1 :
-              setMotorPulse(-100, -100);
-              delay(1500);
-              sub_State = 2;
-              break;
-            case 2 :
-              setMotorPulse(0, 0);
-              count_time += 1;
-              delay(20);
-              if (count_time > 500) {
-                sub_State = 3;
-              }
-              break;
-            case 3 :
-              setMotorPulse(-200, -200);
-              delay(5000);
-              sub_State = 4;
-              break;
-            case 4 :
-              setMotorPulse(0, 0);
-              delay(100);
-              break;
+        case 10 ://しばらくは交差点を無視してライントレース
+          count_Cross = 0;
+          lineTrace();
+          count_time += 1;
+          if (count_time > 150) {
+            count_time = 0;
+            state = 4;
+            sub_State = 0;
           }
           break;
       }
-      Serial.print(state);
-      Serial.print(" ");
-      Serial.print(sub_State);
-      Serial.print(" ");
-      Serial.print(valMPhotoRef);
-      Serial.print(" ");
-      Serial.println(count_Cross);
-
+      break;
+    case 4 : //ボックスまでライントレース
+      switch (sub_State) {
+        case 0 :
+          lineTrace();
+          if (count_Cross > 0) {
+            setMotorPulse(0, 0);
+            sub_State = 1;
+            sendMyState(state);
+          }
+          break;
+        case 1 :
+          lineTrace();
+          if (count_Cross > 0) {
+            setMotorPulse(0, 0);
+            state = 5;
+            sub_State = 0;
+          }
+          break;
+      }
+      break;
+    case 5 : //ボックスに到達し球を入れる
+      switch (sub_State) {
+        case 0 :
+          val_Servo += 20;
+          servo.write(val_Servo);
+          delay(200);
+          if (val_Servo > 1240) {
+            sub_State = 1;
+          }
+          break;
+        case 1 :
+          setMotorPulse(-100, -100);
+          delay(1500);
+          sub_State = 2;
+          break;
+        case 2 :
+          setMotorPulse(0, 0);
+          count_time += 1;
+          delay(20);
+          if (count_time > 500) {
+            sub_State = 3;
+          }
+          break;
+        case 3 :
+          setMotorPulse(-200, -200);
+          delay(5000);
+          sub_State = 4;
+          break;
+        case 4 :
+          setMotorPulse(0, 0);
+          delay(100);
+          break;
+      }
+      break;
   }
+  Serial.print(state);
+  Serial.print(" ");
+  Serial.print(sub_State);
+  Serial.print(" ");
+  Serial.print(valMPhotoRef);
+  Serial.print(" ");
+  Serial.println(count_Cross);
+
+}
