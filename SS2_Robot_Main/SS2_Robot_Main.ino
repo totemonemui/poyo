@@ -89,7 +89,7 @@ unsigned long tPrev; // 前の時刻
 unsigned int tProc;
 
 //前側の壁に近づく用
-int refF = 640; // 目標値.ここを各自計測した値に設定する.
+int refF = 620; // 目標値.ここを各自計測した値に設定する.
 int e = 0; // 今の偏差
 int ePrev = 0; // 前の偏差
 int eInt = 0; // 偏差の積分値
@@ -298,9 +298,12 @@ void loop() {
           break;
         case 12 :
           setMotorPulse(0, 0);
-          if (getPartnerState() > 4) {
+          count_time += 1;
+          if (getPartnerState() > 4 || count_time > 1500) {
             sub_State = 8;
+            count_time = 0;
           }
+          delay(20);
           break;
           case 8 :
             kabeTrace();
@@ -384,7 +387,7 @@ void loop() {
               break;
             case 3 :
               setMotorPulse(-200, -200);
-              delay(2000);
+              delay(5000);
               sub_State = 4;
               break;
             case 4 :
