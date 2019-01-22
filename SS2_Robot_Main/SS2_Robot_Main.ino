@@ -89,7 +89,7 @@ unsigned long tPrev; // 前の時刻
 unsigned int tProc;
 
 //前側の壁に近づく用
-int refF = 600; // 目標値.ここを各自計測した値に設定する.
+int refF = 640; // 目標値.ここを各自計測した値に設定する.
 int e = 0; // 今の偏差
 int ePrev = 0; // 前の偏差
 int eInt = 0; // 偏差の積分値
@@ -175,6 +175,18 @@ void loop() {
           }
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
+            if (e > 20 && e <= 50) {
+              setMotorPulse(-200, 200);
+              delay(50);
+              setMotorPulse(200, -200);
+              delay(50);
+            }
+            if (e < -20 && e >= -50) {
+              setMotorPulse(-200, 200);
+              delay(50);
+              setMotorPulse(200, -200);
+              delay(50);
+            }
             if (e <= 20 && e >= -20) {
               count_time += 1;
             }
@@ -213,7 +225,7 @@ void loop() {
             lineTrace();
             count_Cross = 0;
             count_time += 1;
-            if(count_time>4){
+            if (count_time > 4) {
               count_time = 0;
               sub_State = 0;
               state = 3;
@@ -251,6 +263,18 @@ void loop() {
           }
           else if (valFPSD > 100) { //壁側へフィードバック
             frontDistanceControl();
+            if (e > 20 && e <= 50) {
+              setMotorPulse(-200, 200);
+              delay(50);
+              setMotorPulse(200, -200);
+              delay(50);
+            }
+            if (e < -20 && e >= -50) {
+              setMotorPulse(-200, 200);
+              delay(50);
+              setMotorPulse(200, -200);
+              delay(50);
+            }
             if (e <= 20 && e >= -20) {
               count_time += 1;
             }
@@ -269,16 +293,27 @@ void loop() {
           delay(100);
           if (val_Servo < 540) {
             sub_State = 8;
+            count_time = 0;
           }
           break;
         case 8 :
           kabeTrace();
+          if (valLPSD < 150) {
+            count_time += 1;
+          }
+          if (count_time > 3) {
+            sub_State = 11;
+            count_time = 0;
+          }
+          break;
+        case 11 :
+          setMotorPulse(200, 200);
           isCross();
           if (count_Cross > 0) {
             setMotorPulse(0, 0);
             sub_State = 9;
           }
-          break;
+          delay(20);
         case 9 ://安全な方法でメインの線に戻る
           LSpeed = 0;
           RSpeed = 255;
@@ -291,7 +326,7 @@ void loop() {
           count_Cross = 0;
           lineTrace();
           count_time += 1;
-          if (count_time > 700) {
+          if (count_time > 150) {
             count_time = 0;
             state = 4;
             sub_State = 0;
@@ -300,10 +335,22 @@ void loop() {
       }
       break;
     case 4 : //ボックスまでライントレース
-      lineTrace();
-      if (count_Cross > 0) {
-        setMotorPulse(0, 0);
-        state = 5;
+      switch (sub_State) {
+        case 0 :
+          lineTrace();
+          if (count_Cross > 0) {
+            setMotorPulse(0, 0);
+            sub_State = 1;
+          }
+          break;
+        case 1 :
+          lineTrace();
+          if (count_Cross > 0) {
+            setMotorPulse(0, 0);
+            state = 5;
+            sub_State = 0;
+          }
+          break;
       }
       break;
     case 5 : //ボックスに到達し球を入れる
@@ -323,6 +370,20 @@ void loop() {
           break;
         case 2 :
           setMotorPulse(0, 0);
+          count_time += 1;
+          delay(20);
+          if(count_time > 500){
+            sub_State = 3;
+          }
+          break;
+        case 3 :
+          setMotorPulse(200, 200);
+          delay(2000);
+          sub_State = 4;
+          break;
+        case 4 :
+          setMotorPulse(0, 0);
+          delay(100);
           break;
       }
       break;
